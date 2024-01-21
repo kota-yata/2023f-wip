@@ -14,7 +14,7 @@ from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import connect
 
 STUN_SERVER = ("stun.l.google.com", 19302)
-WEBSOCKET_URI = "ws://106.72.33.225:8765"
+WEBSOCKET_URI = "ws://127.0.0.1:8765"
 
 async def run_quic_client(sock, remote_host, remote_port):
     print("establishing QUIC connection")
