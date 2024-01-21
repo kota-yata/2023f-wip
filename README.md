@@ -7,6 +7,9 @@ NAT Traversal using the NAT Traversal QUIC Extension: /quic-traversal
 
 Certs in tests directory were the ones copied from aioquic library
 
-aioquic is modified as follows:
+# Ice Traversal
+/ice-traversal
 
-aioice is modified as follows:
+```
+git subtree push --prefix ice-traversal heroku main
+```
