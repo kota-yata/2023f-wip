@@ -57,6 +57,7 @@ class QuicServer(asyncio.DatagramProtocol):
         self._transport = cast(asyncio.DatagramTransport, transport)
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
+        print("datagram_received from: ", addr)
         data = cast(bytes, data)
         buf = Buffer(data=data)
 
@@ -166,8 +167,6 @@ class QuicServer(asyncio.DatagramProtocol):
 
 
 async def serve(
-    host: str,
-    port: int,
     *,
     configuration: QuicConfiguration,
     create_protocol: Callable = QuicConnectionProtocol,
