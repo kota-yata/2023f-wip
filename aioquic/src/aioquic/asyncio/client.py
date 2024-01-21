@@ -23,7 +23,7 @@ async def connect(
     token_handler: Optional[QuicTokenHandler] = None,
     wait_connected: bool = True,
     local_port: int = 0,
-    sock = None
+    sock=None
 ) -> AsyncGenerator[QuicConnectionProtocol, None]:
     """
     Connect to a QUIC server at the given `host` and `port`.
@@ -52,10 +52,11 @@ async def connect(
 
     # lookup remote address
     infos = await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM, family=socket.AF_INET)
+    print("infos", infos)
     addr = infos[0][4]
-    print("addr:", addr)
+    # if len(addr) == 2:
+    #     addr = ("::ffff:" + addr[0], addr[1], 0, 0)
     if len(addr) == 4:
-        # addr = ("::ffff:" + addr[0], addr[1], 0, 0)
         addr = (addr[0], addr[1])
 
     # prepare QUIC connection
@@ -69,7 +70,7 @@ async def connect(
         token_handler=token_handler,
     )
 
-    # # explicitly enable IPv4/IPv6 dual stack
+    # explicitly enable IPv4/IPv6 dual stack
     # sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
     # completed = False
     # try:
@@ -85,10 +86,8 @@ async def connect(
         sock=sock,
     )
     protocol = cast(QuicConnectionProtocol, protocol)
-    print("connection id", protocol._quic._peer_cid.cid)
     try:
         protocol.connect(addr)
-        await protocol.ping()
         if wait_connected:
             await protocol.wait_connected()
         yield protocol

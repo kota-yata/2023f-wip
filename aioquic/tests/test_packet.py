@@ -112,15 +112,12 @@ class PacketTest(TestCase):
         self.assertEqual(buf.tell(), 125)
 
         # check integrity
-        if False:
-            self.assertEqual(
-                get_retry_integrity_tag(
-                    buf.data_slice(0, 109),
-                    original_destination_cid,
-                    version=header.version,
-                ),
-                header.integrity_tag,
-            )
+        self.assertEqual(
+            get_retry_integrity_tag(
+                buf.data_slice(0, 109), original_destination_cid, version=header.version
+            ),
+            header.integrity_tag,
+        )
 
         # serialize
         encoded = encode_quic_retry(
@@ -130,8 +127,6 @@ class PacketTest(TestCase):
             original_destination_cid=original_destination_cid,
             retry_token=header.token,
         )
-        with open("bob.bin", "wb") as fp:
-            fp.write(encoded)
         self.assertEqual(encoded, data)
 
     def test_pull_retry_draft_29(self):
@@ -196,7 +191,7 @@ class PacketTest(TestCase):
         versions = []
         while not buf.eof():
             versions.append(buf.pull_uint32())
-        self.assertEqual(versions, [0x45474716, QuicProtocolVersion.VERSION_1]),
+        self.assertEqual(versions, [0x45474716, QuicProtocolVersion.VERSION_1])
 
     def test_pull_long_header_dcid_too_long(self):
         buf = Buffer(

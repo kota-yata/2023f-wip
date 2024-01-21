@@ -457,8 +457,7 @@ class QuicConnection:
         Switch to the next available connection ID and retire
         the previous one.
 
-        After calling this method call :meth:`datagrams_to_send` to retrieve data
-        which needs to be sent.
+        .. aioquic_transmit::
         """
         if self._peer_cid_available:
             # retire previous CID
@@ -475,6 +474,8 @@ class QuicConnection:
     ) -> None:
         """
         Close the connection.
+
+        .. aioquic_transmit::
 
         :param error_code: An error code indicating why the connection is
                            being closed.
@@ -495,15 +496,14 @@ class QuicConnection:
 
         This method can only be called for clients and a single time.
 
-        After calling this method call :meth:`datagrams_to_send` to retrieve data
-        which needs to be sent.
+        .. aioquic_transmit::
 
         :param addr: The network address of the remote peer.
         :param now: The current time.
         """
-        # assert (
-        #     self._is_client not self._connect_called
-        # ), "connect() can only be called for clients and a single time"
+        assert (
+            self._is_client and not self._connect_called
+        ), "connect() can only be called for clients and a single time"
         self._connect_called = True
 
         self._network_paths = [QuicNetworkPath(addr, is_validated=True)]
@@ -686,8 +686,7 @@ class QuicConnection:
         """
         Handle the timer.
 
-        After calling this method call :meth:`datagrams_to_send` to retrieve data
-        which needs to be sent.
+        .. aioquic_transmit::
 
         :param now: The current time.
         """
@@ -722,8 +721,7 @@ class QuicConnection:
         """
         Handle an incoming datagram.
 
-        After calling this method call :meth:`datagrams_to_send` to retrieve data
-        which needs to be sent.
+        .. aioquic_transmit::
 
         :param data: The datagram which was received.
         :param addr: The network address from which the datagram was received.
@@ -1102,6 +1100,8 @@ class QuicConnection:
     def request_key_update(self) -> None:
         """
         Request an update of the encryption keys.
+
+        .. aioquic_transmit::
         """
         assert self._handshake_complete, "cannot change key before handshake completes"
         self._cryptos[tls.Epoch.ONE_RTT].update_key()
@@ -1109,6 +1109,8 @@ class QuicConnection:
     def reset_stream(self, stream_id: int, error_code: int) -> None:
         """
         Abruptly terminate the sending part of a stream.
+
+        .. aioquic_transmit::
 
         :param stream_id: The stream's ID.
         :param error_code: An error code indicating why the stream is being reset.
@@ -1120,6 +1122,8 @@ class QuicConnection:
         """
         Send a PING frame to the peer.
 
+        .. aioquic_transmit::
+
         :param uid: A unique ID for this PING.
         """
         self._ping_pending.append(uid)
@@ -1127,6 +1131,8 @@ class QuicConnection:
     def send_datagram_frame(self, data: bytes) -> None:
         """
         Send a DATAGRAM frame.
+
+        .. aioquic_transmit::
 
         :param data: The data to be sent.
         """
@@ -1138,6 +1144,8 @@ class QuicConnection:
         """
         Send data on the specific stream.
 
+        .. aioquic_transmit::
+
         :param stream_id: The stream's ID.
         :param data: The data to be sent.
         :param end_stream: If set to `True`, the FIN bit will be set.
@@ -1148,6 +1156,8 @@ class QuicConnection:
     def stop_stream(self, stream_id: int, error_code: int) -> None:
         """
         Request termination of the receiving part of a stream.
+
+        .. aioquic_transmit::
 
         :param stream_id: The stream's ID.
         :param error_code: An error code indicating why the stream is being stopped.
@@ -1235,7 +1245,7 @@ class QuicConnection:
         """
         Start the client handshake.
         """
-        # assert self._is_client
+        assert self._is_client
 
         if self._quic_logger is not None:
             self._quic_logger.log_event(
@@ -1251,6 +1261,7 @@ class QuicConnection:
                 event="alpn_information",
                 data={"client_alpns": self._configuration.alpn_protocols},
             )
+
         self._close_at = now + self._configuration.idle_timeout
         self._initialize(self._peer_cid.cid)
 
@@ -1411,8 +1422,8 @@ class QuicConnection:
         # TLS session resumption
         session_ticket = self._configuration.session_ticket
         if (
-            # self._is_client and
-            session_ticket is not None
+            self._is_client
+            and session_ticket is not None
             and session_ticket.is_valid
             and session_ticket.server_name == self._configuration.server_name
         ):
@@ -3018,7 +3029,7 @@ class QuicConnection:
                 QuicFrameType.CRYPTO,
                 capacity=frame_overhead,
                 handler=stream.sender.on_data_delivery,
-                handler_args=(frame.offset, frame.offset + len(frame.data)),
+                handler_args=(frame.offset, frame.offset + len(frame.data), False),
             )
             buf.push_uint_var(frame.offset)
             buf.push_uint16(len(frame.data) | 0x4000)
@@ -3245,7 +3256,7 @@ class QuicConnection:
                 frame_type,
                 capacity=frame_overhead,
                 handler=stream.sender.on_data_delivery,
-                handler_args=(frame.offset, frame.offset + len(frame.data)),
+                handler_args=(frame.offset, frame.offset + len(frame.data), frame.fin),
             )
             buf.push_uint_var(stream.stream_id)
             if frame.offset:

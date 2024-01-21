@@ -20,7 +20,7 @@ async def run_quic_server(sock, cid):
     configuration = QuicConfiguration(is_client=False)
     configuration.load_verify_locations("../tests/pycacert.pem")
     configuration.load_cert_chain("../tests/cert.pem", "../tests/key.pem")
-    await serve("localhost", 12346, configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, remote_host="localhost", remote_port=12345, cid=cid)
+    await serve("localhost", 12346, configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, remote_host="localhost", remote_port=12345)
     await asyncio.Future()
 
 # async def run_quic_client(sock):

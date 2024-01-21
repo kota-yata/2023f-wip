@@ -526,7 +526,8 @@ class ContextTest(TestCase):
         client.handle_message(client_input, client_buf)
         self.assertEqual(client.state, State.CLIENT_POST_HANDSHAKE)
         server_input = merge_buffers(client_buf)
-        self.assertEqual(len(server_input), 1043)
+        self.assertGreaterEqual(len(server_input), 1042)
+        self.assertLessEqual(len(server_input), 1043)
         reset_buffers(client_buf)
 
         # Handle certificate, certificate verify, finished.
@@ -1665,8 +1666,7 @@ class VerifyCertificateTest(TestCase):
                     cadata=cadata, certificate=certificate, server_name="example.com"
                 )
             self.assertEqual(
-                str(cm.exception),
-                "subject alternative name not found in the certificate",
+                str(cm.exception), "Certificate does not contain any `subjectAltName`s."
             )
 
     def test_verify_subject_with_subjaltname(self):

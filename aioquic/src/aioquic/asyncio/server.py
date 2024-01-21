@@ -1,12 +1,11 @@
 import asyncio
 import os
-import socket
 from functools import partial
 from typing import Callable, Dict, Optional, Text, Union, cast
 
 from ..buffer import Buffer
 from ..quic.configuration import SMALLEST_MAX_DATAGRAM_SIZE, QuicConfiguration
-from ..quic.connection import NetworkAddress, QuicConnection, QuicTokenHandler
+from ..quic.connection import NetworkAddress, QuicConnection
 from ..quic.packet import (
     PACKET_TYPE_INITIAL,
     encode_quic_retry,
@@ -16,6 +15,8 @@ from ..quic.packet import (
 from ..quic.retry import QuicRetryTokenHandler
 from ..tls import SessionTicketFetcher, SessionTicketHandler
 from .protocol import QuicConnectionProtocol, QuicStreamHandler
+
+import socket
 
 __all__ = ["serve"]
 
@@ -30,7 +31,6 @@ class QuicServer(asyncio.DatagramProtocol):
         session_ticket_handler: Optional[SessionTicketHandler] = None,
         retry: bool = False,
         stream_handler: Optional[QuicStreamHandler] = None,
-        cid: bytes = None
     ) -> None:
         self._configuration = configuration
         self._create_protocol = create_protocol
@@ -83,7 +83,6 @@ class QuicServer(asyncio.DatagramProtocol):
             return
 
         protocol = self._protocols.get(header.destination_cid, None)
-        print("protocol", protocol)
         original_destination_connection_id: Optional[bytes] = None
         retry_source_connection_id: Optional[bytes] = None
         if (
@@ -129,10 +128,10 @@ class QuicServer(asyncio.DatagramProtocol):
                 session_ticket_fetcher=self._session_ticket_fetcher,
                 session_ticket_handler=self._session_ticket_handler,
             )
-            self.protocol = self._create_protocol(connection, stream_handler=self._stream_handler)
-            self.protocol.connection_made(self._transport)
-
-            print("connection id issued", self._connection_id_issued)
+            protocol = self._create_protocol(
+                connection, stream_handler=self._stream_handler
+            )
+            protocol.connection_made(self._transport)
 
             # register callbacks
             protocol._connection_id_issued_handler = partial(
@@ -177,11 +176,10 @@ async def serve(
     retry: bool = False,
     stream_handler: QuicStreamHandler = None,
     sock = None,
+    connect = False,
     remote_host = None,
     remote_port = None,
-    wait_connected = True,
-    cid: bytes = None,
-    connect: bool = False,
+    wait_connected = True
 ) -> QuicServer:
     """
     Start a QUIC server at the given `host` and `port`.
@@ -207,8 +205,9 @@ async def serve(
       created. It must accept two arguments: a :class:`asyncio.StreamReader`
       and a :class:`asyncio.StreamWriter`.
     """
-    print("Serving")
+
     loop = asyncio.get_event_loop()
+
     _, protocol = await loop.create_datagram_endpoint(
         lambda: QuicServer(
             configuration=configuration,
@@ -217,15 +216,15 @@ async def serve(
             session_ticket_handler=session_ticket_handler,
             retry=retry,
             stream_handler=stream_handler,
-            cid=cid,
         ),
-        # local_addr=(host, port),
         sock=sock,
-        # family=socket.AF_INET,
+        # local_addr=(host, port),
     )
+    print("serving on", protocol._transport.get_extra_info("sockname"))
     if not connect:
       return protocol
     
+    print("connecting")
     # 最初にconnectする処理を追加
     configuration.server_name = remote_host
     configuration.is_client = True
@@ -253,4 +252,3 @@ async def serve(
         await m_protocol.wait_closed()
         m_transport.close()
     return protocol
-

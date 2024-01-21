@@ -15,7 +15,7 @@ from aioquic.h3.events import (
     PushPromiseReceived,
     WebTransportStreamDataReceived,
 )
-from aioquic.h3.exceptions import NoAvailablePushIDError
+from aioquic.h3.exceptions import InvalidStreamTypeError, NoAvailablePushIDError
 from aioquic.quic.connection import QuicConnection, stream_is_unidirectional
 from aioquic.quic.events import DatagramFrameReceived, QuicEvent, StreamDataReceived
 from aioquic.quic.logger import QuicLoggerTrace
@@ -187,6 +187,13 @@ def parse_settings(data: bytes) -> Dict[int, int]:
     return dict(settings)
 
 
+def stream_is_request_response(stream_id: int):
+    """
+    Returns True if the stream is a client-initiated bidirectional stream.
+    """
+    return stream_id % 4 == 0
+
+
 def validate_headers(
     headers: Headers,
     allowed_pseudo_headers: FrozenSet[bytes],
@@ -296,7 +303,7 @@ class H3Connection:
     """
     A low-level HTTP/3 connection object.
 
-    :param quic: A :class:`~aioquic.connection.QuicConnection` instance.
+    :param quic: A :class:`~aioquic.quic.connection.QuicConnection` instance.
     """
 
     def __init__(self, quic: QuicConnection, enable_webtransport: bool = False) -> None:
@@ -340,6 +347,8 @@ class H3Connection:
     ) -> int:
         """
         Create a WebTransport stream and return the stream ID.
+
+        .. aioquic_transmit::
 
         :param session_id: The WebTransport session identifier.
         :param is_unidirectional: Whether to create a unidirectional stream.
@@ -393,12 +402,21 @@ class H3Connection:
         """
         Send a datagram for the specified stream.
 
+        If the stream ID is not a client-initiated bidirectional stream, an
+        :class:`~aioquic.h3.exceptions.InvalidStreamTypeError` exception is raised.
+
+        .. aioquic_transmit::
+
         :param stream_id: The stream ID.
         :param data: The HTTP/3 datagram payload.
         """
-        assert (
-            stream_id % 4 == 0
-        ), "Datagrams can only be sent for client-initiated bidirectional streams"
+
+        # check stream ID is valid
+        if not stream_is_request_response(stream_id):
+            raise InvalidStreamTypeError(
+                "Datagrams can only be sent for client-initiated bidirectional streams"
+            )
+
         self._quic.send_datagram_frame(encode_uint_var(stream_id // 4) + data)
 
     def send_push_promise(self, stream_id: int, headers: Headers) -> int:
@@ -407,10 +425,27 @@ class H3Connection:
 
         Returns the stream ID on which headers and data can be sent.
 
+        If the stream ID is not a client-initiated bidirectional stream, an
+        :class:`~aioquic.h3.exceptions.InvalidStreamTypeError` exception is raised.
+
+        If there are not available push IDs, an
+        :class:`~aioquic.h3.exceptions.NoAvailablePushIDError` exception is raised.
+
+        .. aioquic_transmit::
+
         :param stream_id: The stream ID on which to send the data.
         :param headers: The HTTP request headers for this push.
         """
         assert not self._is_client, "Only servers may send a push promise."
+
+        # check stream ID is valid
+        if not stream_is_request_response(stream_id):
+            raise InvalidStreamTypeError(
+                "Push promises can only be sent for client-initiated bidirectional "
+                "streams"
+            )
+
+        # check a push ID is available
         if self._max_push_id is None or self._next_push_id >= self._max_push_id:
             raise NoAvailablePushIDError
 
@@ -435,9 +470,7 @@ class H3Connection:
         """
         Send data on the given stream.
 
-        To retrieve datagram which need to be sent over the network call the QUIC
-        connection's :meth:`~aioquic.connection.QuicConnection.datagrams_to_send`
-        method.
+        .. aioquic_transmit::
 
         :param stream_id: The stream ID on which to send the data.
         :param data: The data to send.
@@ -468,9 +501,7 @@ class H3Connection:
         """
         Send headers on the given stream.
 
-        To retrieve datagram which need to be sent over the network call the QUIC
-        connection's :meth:`~aioquic.connection.QuicConnection.datagrams_to_send`
-        method.
+        .. aioquic_transmit::
 
         :param stream_id: The stream ID on which to send the headers.
         :param headers: The HTTP headers to send.

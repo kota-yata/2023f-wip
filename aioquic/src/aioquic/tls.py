@@ -244,10 +244,13 @@ def verify_certificate(
                     certificate, server_name
                 )
 
-        except service_identity.VerificationError as exc:
+        except (
+            service_identity.CertificateError,
+            service_identity.VerificationError,
+        ) as exc:
             patterns = service_identity.cryptography.extract_patterns(certificate)
             if len(patterns) == 0:
-                errmsg = "subject alternative name not found in the certificate"
+                errmsg = str(exc)
             elif len(patterns) == 1:
                 errmsg = f"hostname {server_name!r} doesn't match {patterns[0]!r}"
             else:
@@ -1128,7 +1131,7 @@ def decode_public_key(
 def encode_public_key(
     public_key: Union[
         ec.EllipticCurvePublicKey, x25519.X25519PublicKey, x448.X448PublicKey
-    ]
+    ],
 ) -> KeyShareEntry:
     if isinstance(public_key, x25519.X25519PublicKey):
         return (Group.X25519, public_key.public_bytes(Encoding.Raw, PublicFormat.Raw))
