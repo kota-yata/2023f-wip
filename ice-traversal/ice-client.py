@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 
 import aioice
 import websockets
@@ -14,14 +15,14 @@ from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import connect
 
 STUN_SERVER = ("stun.l.google.com", 19302)
-WEBSOCKET_URI = "ws://ice-traversal-98d95d2795d5.herokuapp.com:12345"
+WEBSOCKET_URI = "wss://ice-traversal-98d95d2795d5.herokuapp.com"
 
 async def run_quic_client(sock, remote_host, remote_port):
     print("establishing QUIC connection")
     configuration = QuicConfiguration(is_client=True)
     configuration.load_verify_locations("../tests/pycacert.pem")
 
-    async with connect(remote_host, remote_port, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
+    async with connect(remote_host, remote_port, configuration=configuration, create_protocol=EchoClientProtocol, sock=sock) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()
         protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
         received_data = await protocol.received_data.get()
