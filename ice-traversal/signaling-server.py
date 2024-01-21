@@ -20,6 +20,7 @@ async def echo(websocket, path):
         async for message in websocket:
             for c in clients.values():
                 if c != websocket:
+                    print("Sending to", c.remote_address, ":", message)
                     await c.send(message)
     finally:
         clients.pop(client_id)
