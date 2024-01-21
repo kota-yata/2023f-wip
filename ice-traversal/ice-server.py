@@ -8,6 +8,7 @@ import logging
 import aioice
 import websockets
 
+import m_socket
 from quic_protocol import EchoClientProtocol
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import serve
@@ -15,6 +16,12 @@ from aioquic.asyncio import serve
 STUN_SERVER = ("stun.l.google.com", 19302)
 WEBSOCKET_URI = "ws://127.0.0.1:8765"
 
+async def run_quic_server(sock):
+    configuration = QuicConfiguration(is_client=False)
+    configuration.load_verify_locations("../tests/pycacert.pem")
+    configuration.load_cert_chain("../tests/cert.pem", "../tests/key.pem")
+    await serve(configuration=configuration, create_protocol=EchoClientProtocol, sock=sock)
+    await asyncio.Future()
 
 async def offer(options):
     connection = aioice.Connection(
@@ -47,7 +54,7 @@ async def offer(options):
     await websocket.close()
 
     await connection.connect()
-    print("connected")
+    local_addr = connection._check_list[0].local_addr
 
     # send data
     data = b"hello"
@@ -57,7 +64,9 @@ async def offer(options):
     data, component = await connection.recvfrom()
     print("received %s on component %d" % (repr(data), component))
 
-    await asyncio.sleep(5)
+    # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
+    sock = connection.sock
+    await run_quic_server(sock)
     await connection.close()
 
 
@@ -92,12 +101,16 @@ async def answer(options):
     await websocket.close()
 
     await connection.connect()
-    print("connected")
+    local_addr = connection._check_list[0].local_addr
 
     # echo data back
     data, component = await connection.recvfrom()
     print("echoing %s on component %d" % (repr(data), component))
     await connection.sendto(data, component)
+
+    sock = connection.sock
+    # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
+    await run_quic_server(sock)
 
     await asyncio.sleep(5)
     await connection.close()
@@ -115,9 +128,3 @@ if options.action == "offer":
 else:
     asyncio.get_event_loop().run_until_complete(answer(options))
 
-async def run_quic_server(sock):
-    configuration = QuicConfiguration(is_client=False)
-    configuration.load_verify_locations("../tests/pycacert.pem")
-    configuration.load_cert_chain("../tests/cert.pem", "../tests/key.pem")
-    await serve("localhost", 12346, configuration=configuration, create_protocol=EchoClientProtocol, sock=sock)
-    await asyncio.Future()

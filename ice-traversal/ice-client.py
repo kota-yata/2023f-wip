@@ -9,11 +9,23 @@ import aioice
 import websockets
 
 from quic_protocol import EchoClientProtocol
+import m_socket
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import connect
 
 STUN_SERVER = ("stun.l.google.com", 19302)
 WEBSOCKET_URI = "ws://127.0.0.1:8765"
+
+async def run_quic_client(sock, remote_host, remote_port):
+    print("establishing QUIC connection")
+    configuration = QuicConfiguration(is_client=True)
+    configuration.load_verify_locations("../tests/pycacert.pem")
+
+    async with connect(remote_host, remote_port, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
+        stream_id = protocol._quic.get_next_available_stream_id()
+        protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
+        received_data = await protocol.received_data.get()
+        print("Data Received:", received_data)
 
 
 async def offer(options):
@@ -47,7 +59,8 @@ async def offer(options):
     await websocket.close()
 
     await connection.connect()
-    print("connected")
+    local_addr = connection._check_list[0].local_addr
+    remote_addr = connection._check_list[0].remote_addr
 
     # send data
     data = b"hello"
@@ -56,6 +69,10 @@ async def offer(options):
     await connection.sendto(data, component)
     data, component = await connection.recvfrom()
     print("received %s on component %d" % (repr(data), component))
+
+    sock = connection.sock
+    # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
+    await run_quic_client(sock, remote_addr[0], remote_addr[1])
 
     await asyncio.sleep(5)
     await connection.close()
@@ -92,12 +109,17 @@ async def answer(options):
     await websocket.close()
 
     await connection.connect()
-    print("connected")
+    local_addr = connection._check_list[0].local_addr
+    remote_addr = connection._check_list[0].remote_addr
 
     # echo data back
     data, component = await connection.recvfrom()
     print("echoing %s on component %d" % (repr(data), component))
     await connection.sendto(data, component)
+
+    sock = connection.sock
+    # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
+    await run_quic_client(sock, remote_addr[0], remote_addr[1])
 
     await asyncio.sleep(5)
     await connection.close()
@@ -114,13 +136,3 @@ if options.action == "offer":
     asyncio.get_event_loop().run_until_complete(offer(options))
 else:
     asyncio.get_event_loop().run_until_complete(answer(options))
-
-async def run_quic_client(sock):
-    configuration = QuicConfiguration(is_client=True)
-    configuration.load_verify_locations("../tests/pycacert.pem")
-
-    async with connect("localhost", 12346, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
-        stream_id = protocol._quic.get_next_available_stream_id()
-        protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
-        received_data = await protocol.received_data.get()
-        print("Data Received:", received_data)
