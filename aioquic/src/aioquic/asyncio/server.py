@@ -83,6 +83,7 @@ class QuicServer(asyncio.DatagramProtocol):
             return
 
         protocol = self._protocols.get(header.destination_cid, None)
+        print("protocol", protocol)
         original_destination_connection_id: Optional[bytes] = None
         retry_source_connection_id: Optional[bytes] = None
         if (
@@ -131,6 +132,8 @@ class QuicServer(asyncio.DatagramProtocol):
             self.protocol = self._create_protocol(connection, stream_handler=self._stream_handler)
             self.protocol.connection_made(self._transport)
 
+            print("connection id issued", self._connection_id_issued)
+
             # register callbacks
             protocol._connection_id_issued_handler = partial(
                 self._connection_id_issued, protocol=protocol
@@ -178,6 +181,7 @@ async def serve(
     remote_port = None,
     wait_connected = True,
     cid: bytes = None,
+    connect: bool = False,
 ) -> QuicServer:
     """
     Start a QUIC server at the given `host` and `port`.
@@ -219,7 +223,9 @@ async def serve(
         sock=sock,
         # family=socket.AF_INET,
     )
-
+    if not connect:
+      return protocol
+    
     # 最初にconnectする処理を追加
     configuration.server_name = remote_host
     configuration.is_client = True

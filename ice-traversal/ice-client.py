@@ -8,6 +8,9 @@ import logging
 import aioice
 import websockets
 
+from utils.quic_protocol import EchoClientProtocol
+from aioquic.asyncio import connect
+
 STUN_SERVER = ("stun.l.google.com", 19302)
 WEBSOCKET_URI = "ws://127.0.0.1:8765"
 
@@ -110,3 +113,13 @@ if options.action == "offer":
     asyncio.get_event_loop().run_until_complete(offer(options))
 else:
     asyncio.get_event_loop().run_until_complete(answer(options))
+
+async def run_quic_client():
+    configuration = QuicConfiguration(is_client=True)
+    configuration.load_verify_locations("../tests/pycacert.pem")
+
+    async with connect("localhost", 4433, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345) as protocol:
+        stream_id = protocol._quic.get_next_available_stream_id()
+        protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
+        received_data = await protocol.received_data.get()
+        print("Data Received:", received_data)
