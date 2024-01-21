@@ -1,1 +1,1 @@
-web: python ../signlaing-sever.py
+web: python signaling-sever.py
