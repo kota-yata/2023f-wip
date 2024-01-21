@@ -1,1 +1,1 @@
-web: ls && python signlaing-sever.py
+web: python ./signlaing-sever.py
