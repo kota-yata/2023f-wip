@@ -15,8 +15,7 @@ from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import serve
 
 STUN_SERVER = ("stun.l.google.com", 19302)
-WEBSOCKET_PORT = int(os.environ.get("PORT", 8765))
-WEBSOCKET_URI = "ws://ice-traversal-98d95d2795d5.herokuapp.com" + WEBSOCKET_PORT
+WEBSOCKET_URI = "ws://ice-traversal-98d95d2795d5.herokuapp.com:8765"
 
 async def run_quic_server(sock):
     configuration = QuicConfiguration(is_client=False)
