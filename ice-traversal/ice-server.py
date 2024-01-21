@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import logging
+import os
 
 import aioice
 import websockets
@@ -14,7 +15,8 @@ from aioquic.quic.configuration import QuicConfiguration
 from aioquic.asyncio import serve
 
 STUN_SERVER = ("stun.l.google.com", 19302)
-WEBSOCKET_URI = "ws://127.0.0.1:8765"
+WEBSOCKET_PORT = int(os.environ.get("PORT", 8765))
+WEBSOCKET_URI = "ws://ice-traversal-98d95d2795d5.herokuapp.com" + WEBSOCKET_PORT
 
 async def run_quic_server(sock):
     configuration = QuicConfiguration(is_client=False)
