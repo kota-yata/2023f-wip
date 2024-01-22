@@ -34,7 +34,7 @@ async def run_quic_server(sock, cid):
 #         print("Data Received:", received_data)
 
 async def main():
-    sock = await m_socket.create_socket("localhost", 12346)
+    sock = await m_socket.create_socket("127.0.0.1", 12346)
     server_task = asyncio.create_task(run_quic_server(sock, b"hoge"))
     # client_task = asyncio.create_task(run_quic_client(sock))
     await asyncio.gather(server_task)

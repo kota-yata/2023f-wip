@@ -48,7 +48,6 @@ async def connect(
     * ``local_port`` is the UDP port number that this client wants to bind.
     """
     loop = asyncio.get_event_loop()
-    local_host = "localhost"
 
     # lookup remote address
     infos = await loop.getaddrinfo(host, port, type=socket.SOCK_DGRAM, family=socket.AF_INET)
