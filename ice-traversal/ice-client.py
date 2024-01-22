@@ -20,7 +20,7 @@ WEBSOCKET_URI = "wss://ice-traversal-98d95d2795d5.herokuapp.com"
 async def run_quic_client(sock, remote_host, remote_port):
     print("establishing QUIC connection")
     configuration = QuicConfiguration(is_client=True)
-    configuration.load_verify_locations("../tests/pycacert.pem")
+    configuration.load_verify_locations("../../certs/pycacert.pem")
 
     async with connect(remote_host, remote_port, configuration=configuration, create_protocol=EchoClientProtocol, sock=sock) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()

@@ -61,7 +61,7 @@ class EchoClientProtocol(QuicConnectionProtocol):
 
 async def run_quic_client():
     configuration = QuicConfiguration(is_client=True)
-    configuration.load_verify_locations("../tests/pycacert.pem")
+    configuration.load_verify_locations("../../certs/pycacert.pem")
 
     async with connect("localhost", 4433, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()

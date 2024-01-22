@@ -19,7 +19,7 @@ WEBSOCKET_URI = "ws://ice-traversal-98d95d2795d5.herokuapp.com"
 
 async def run_quic_server(sock):
     configuration = QuicConfiguration(is_client=False)
-    configuration.load_cert_chain("../tests/cert.pem", "../tests/key.pem")
+    configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
     await serve(configuration=configuration, create_protocol=EchoClientProtocol, sock=sock)
     await asyncio.Future()
 

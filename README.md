@@ -5,8 +5,6 @@ NAT Traversal Using an External Signaling Channel: /ice-traversal
 
 NAT Traversal using the NAT Traversal QUIC Extension: /quic-traversal
 
-Certs in tests directory were the ones copied from aioquic library
-
 # Ice Traversal
 /ice-traversal
 
