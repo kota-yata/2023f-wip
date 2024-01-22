@@ -234,34 +234,34 @@ def verify_certificate(
         else:
             is_ip = True
 
-        # try:
-        #     if is_ip:
-        #         service_identity.cryptography.verify_certificate_ip_address(
-        #             certificate, server_name
-        #         )
-        #     else:
-        #         service_identity.cryptography.verify_certificate_hostname(
-        #             certificate, server_name
-        #         )
+        try:
+            if is_ip:
+                service_identity.cryptography.verify_certificate_ip_address(
+                    certificate, server_name
+                )
+            else:
+                service_identity.cryptography.verify_certificate_hostname(
+                    certificate, server_name
+                )
 
-        # except (
-        #     service_identity.CertificateError,
-        #     service_identity.VerificationError,
-        # ) as exc:
-        #     patterns = service_identity.cryptography.extract_patterns(certificate)
-        #     print("patterns", patterns)
-        #     if len(patterns) == 0:
-        #         errmsg = str(exc)
-        #     elif len(patterns) == 1:
-        #         errmsg = f"hostname {server_name!r} doesn't match {patterns[0]!r}"
-        #     else:
-        #         patterns_repr = ", ".join(repr(pattern) for pattern in patterns)
-        #         errmsg = (
-        #             f"hostname {server_name!r} doesn't match "
-        #             f"either of {patterns_repr}"
-        #         )
+        except (
+            service_identity.CertificateError,
+            service_identity.VerificationError,
+        ) as exc:
+            patterns = service_identity.cryptography.extract_patterns(certificate)
+            print("patterns", patterns)
+            if len(patterns) == 0:
+                errmsg = str(exc)
+            elif len(patterns) == 1:
+                errmsg = f"hostname {server_name!r} doesn't match {patterns[0]!r}"
+            else:
+                patterns_repr = ", ".join(repr(pattern) for pattern in patterns)
+                errmsg = (
+                    f"hostname {server_name!r} doesn't match "
+                    f"either of {patterns_repr}"
+                )
 
-        #     raise AlertBadCertificate(errmsg) from exc
+            raise AlertBadCertificate(errmsg) from exc
 
     # load CAs
     store = crypto.X509Store()
