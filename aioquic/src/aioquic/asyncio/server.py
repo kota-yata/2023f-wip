@@ -65,8 +65,9 @@ class QuicServer(asyncio.DatagramProtocol):
             header = pull_quic_header(
                 buf, host_cid_length=self._configuration.connection_id_length
             )
-            print("header: ", header)
+            print("Header: ", header)
         except ValueError:
+            print("Not a QUIC packet")
             return
 
         # version negotiation
