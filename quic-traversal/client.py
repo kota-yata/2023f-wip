@@ -20,9 +20,10 @@ class EchoClientProtocol(QuicConnectionProtocol):
 async def run_quic_client():
     configuration = QuicConfiguration(is_client=True)
     configuration.load_verify_locations("../../certs/pycacert.pem")
-    sock = await m_socket.create_socket("127.0.0.1", 12345)
+    sock = await m_socket.create_socket("0.0.0.0", 12345)
     # 104.154.130.33
-    async with connect("quic-server-ee6c2a3fae45.herokuapp.com", 12346, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
+    # quic-server-ee6c2a3fae45.herokuapp.com
+    async with connect("0.0.0.0", 12346, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()
         protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
         received_data = await protocol.received_data.get()

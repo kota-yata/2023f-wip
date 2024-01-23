@@ -21,7 +21,7 @@ async def run_quic_server(sock):
     configuration.load_verify_locations("../../certs/pycacert.pem")
     configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
     # 106.72.33.225
-    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="106.72.33.225", remote_port=12345)
+    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="0.0.0.0", remote_port=12345)
     await asyncio.Future()
 
 # async def run_quic_client(sock):
@@ -36,7 +36,7 @@ async def run_quic_server(sock):
 
 async def main():
     # 10.128.0.2
-    sock = await m_socket.create_socket("10.128.0.2", 12346)
+    sock = await m_socket.create_socket("0.0.0.0", 12346)
     server_task = asyncio.create_task(run_quic_server(sock))
     # client_task = asyncio.create_task(run_quic_client(sock))
     await asyncio.gather(server_task)
