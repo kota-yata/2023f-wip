@@ -584,6 +584,7 @@ class QuicConnection:
                 if not self._handshake_confirmed:
                     for epoch in [tls.Epoch.INITIAL, tls.Epoch.HANDSHAKE]:
                         self._write_handshake(builder, epoch, now)
+                print("now: ", now)
                 self._write_application(builder, network_path, now)
             except QuicPacketBuilderStop:
                 pass

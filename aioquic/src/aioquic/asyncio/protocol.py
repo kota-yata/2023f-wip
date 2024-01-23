@@ -105,6 +105,8 @@ class QuicConnectionProtocol(asyncio.DatagramProtocol):
 
         # send datagrams
         for data, addr in self._quic.datagrams_to_send(now=self._loop.time()):
+            if self._transport is None:
+                return
             print("sending to", addr)
             self._transport.sendto(data, addr)
 

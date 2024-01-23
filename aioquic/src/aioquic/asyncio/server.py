@@ -47,6 +47,22 @@ class QuicServer(asyncio.DatagramProtocol):
         else:
             self._retry = None
 
+    async def connect(self, addr):
+        print("connecting")
+        connection = QuicConnection(
+            configuration=self._configuration,
+            session_ticket_handler=self._session_ticket_handler,
+            token_handler=None,
+        )
+        protocol = self._create_protocol(connection, stream_handler=self._stream_handler)
+        try:
+            protocol.connect(addr)
+            await asyncio.sleep(3)
+        finally:
+            print("closing")
+            protocol.close()
+            await protocol.wait_closed()
+
     def close(self):
         for protocol in set(self._protocols.values()):
             protocol.close()
@@ -166,20 +182,6 @@ class QuicServer(asyncio.DatagramProtocol):
             if proto == protocol:
                 del self._protocols[cid]
 
-
-async def _connect(m_protocol, m_transport, addr):
-    try:
-        print("connecting")
-        # m_protocol.connect(addr)
-        # await m_protocol.ping()
-        # if wait_connected:
-        #     await m_protocol.wait_connected()
-    finally:
-        print("Closing")
-        # m_protocol.close()
-        # await m_protocol.wait_closed()
-        # m_transport.close()
-
 async def serve(
     *,
     configuration: QuicConfiguration,
@@ -192,7 +194,6 @@ async def serve(
     connect = False,
     remote_host = None,
     remote_port = None,
-    wait_connected = True
 ) -> QuicServer:
     """
     Start a QUIC server at the given `host` and `port`.
@@ -221,7 +222,10 @@ async def serve(
 
     loop = asyncio.get_event_loop()
 
-    _, protocol = await loop.create_datagram_endpoint(
+    configuration.server_name = remote_host
+    configuration.is_client = True
+
+    transport, protocol = await loop.create_datagram_endpoint(
         lambda: QuicServer(
             configuration=configuration,
             create_protocol=create_protocol,
@@ -238,20 +242,14 @@ async def serve(
       return protocol
     
     # 最初にconnectする処理を追加
-    configuration.server_name = remote_host
-    configuration.is_client = True
     connection = QuicConnection(
         configuration=configuration,
         session_ticket_handler=session_ticket_handler,
         token_handler=None,
     )
-    m_transport, m_protocol = await loop.create_datagram_endpoint(
-        lambda: create_protocol(connection, stream_handler=stream_handler),
-        sock=sock,
-    )
-    m_protocol = cast(QuicConnectionProtocol, m_protocol)
+    protocol = cast(QuicConnectionProtocol, protocol)
     infos = await loop.getaddrinfo(remote_host, remote_port, type=socket.SOCK_DGRAM, family=socket.AF_INET)
     addr = infos[0][4]
-    await _connect(m_protocol, m_transport, addr)
+    await protocol.connect(addr)
     
     return protocol
