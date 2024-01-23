@@ -341,6 +341,7 @@ class Connection:
         self._use_ipv4 = use_ipv4
         self._use_ipv6 = use_ipv6
         self.sock = None
+        self.established_remote_addr = None
 
     @property
     def local_candidates(self) -> List[Candidate]:
@@ -662,6 +663,7 @@ class Connection:
             if len(self._nominated) == len(self._components):
                 if not self._check_list_done:
                     self.__log_info("ICE completed")
+                    self.established_remote_addr = pair.remote_addr
                     asyncio.ensure_future(self._check_list_state.put(ICE_COMPLETED))
                     self._check_list_done = True
                 return

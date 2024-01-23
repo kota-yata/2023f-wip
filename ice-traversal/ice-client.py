@@ -59,11 +59,7 @@ async def answer(options):
     await websocket.close()
 
     await connection.connect()
-    for c in connection._check_list:
-        print("remote addr:", c.remote_addr)
-    for a in connection.remote_candidates:
-        print("remote candidate:", a)
-    remote_addr = connection._check_list[0].remote_addr
+    remote_addr = connection.established_remote_addr
 
     # echo data back
     data, component = await connection.recvfrom()

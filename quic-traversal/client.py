@@ -19,10 +19,10 @@ class EchoClientProtocol(QuicConnectionProtocol):
 
 async def run_quic_client():
     configuration = QuicConfiguration(is_client=True)
-    # configuration.load_verify_locations("../tests/pycacert.pem")
+    configuration.load_verify_locations("../../certs/pycacert.pem")
     sock = await m_socket.create_socket("127.0.0.1", 12345)
-    # 10.128.0.2
-    async with connect("34.29.43.71", 12346, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
+    # 34.29.43.71
+    async with connect("127.0.0.1", 12346, configuration=configuration, create_protocol=EchoClientProtocol, local_port=12345, sock=sock) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()
         protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
         received_data = await protocol.received_data.get()

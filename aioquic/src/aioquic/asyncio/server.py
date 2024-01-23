@@ -65,7 +65,6 @@ class QuicServer(asyncio.DatagramProtocol):
             header = pull_quic_header(
                 buf, host_cid_length=self._configuration.connection_id_length
             )
-            print("Header: ", header)
         except ValueError:
             print("Not a QUIC packet")
             return
@@ -168,6 +167,19 @@ class QuicServer(asyncio.DatagramProtocol):
                 del self._protocols[cid]
 
 
+async def _connect(m_protocol, m_transport, addr):
+    try:
+        print("connecting")
+        # m_protocol.connect(addr)
+        # await m_protocol.ping()
+        # if wait_connected:
+        #     await m_protocol.wait_connected()
+    finally:
+        print("Closing")
+        # m_protocol.close()
+        # await m_protocol.wait_closed()
+        # m_transport.close()
+
 async def serve(
     *,
     configuration: QuicConfiguration,
@@ -225,7 +237,6 @@ async def serve(
     if not connect:
       return protocol
     
-    print("connecting")
     # 最初にconnectする処理を追加
     configuration.server_name = remote_host
     configuration.is_client = True
@@ -239,17 +250,8 @@ async def serve(
         sock=sock,
     )
     m_protocol = cast(QuicConnectionProtocol, m_protocol)
-    print(m_protocol._quic.host_cid)
     infos = await loop.getaddrinfo(remote_host, remote_port, type=socket.SOCK_DGRAM, family=socket.AF_INET)
     addr = infos[0][4]
-    try:
-        m_protocol.connect(addr)
-        await m_protocol.ping()
-        if wait_connected:
-            await m_protocol.wait_connected()
-    finally:
-        print("Closing")
-        m_protocol.close()
-        await m_protocol.wait_closed()
-        m_transport.close()
+    await _connect(m_protocol, m_transport, addr)
+    
     return protocol

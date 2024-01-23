@@ -18,9 +18,9 @@ class EchoQuicProtocol(QuicConnectionProtocol):
 
 async def run_quic_server(sock, cid):
     configuration = QuicConfiguration(is_client=False)
-    configuration.load_verify_locations("../tests/pycacert.pem")
-    configuration.load_cert_chain("../tests/cert.pem", "../tests/key.pem")
-    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock)
+    configuration.load_verify_locations("../../certs/pycacert.pem")
+    configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
+    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="127.0.0.1", remote_port=12345)
     await asyncio.Future()
 
 # async def run_quic_client(sock):
