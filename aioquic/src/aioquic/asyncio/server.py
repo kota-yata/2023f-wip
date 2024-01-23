@@ -60,8 +60,8 @@ class QuicServer(asyncio.DatagramProtocol):
             await asyncio.sleep(3)
         finally:
             print("closing")
-            protocol.close()
-            await protocol.wait_closed()
+            # protocol.close()
+            # await protocol.wait_closed()
 
     def close(self):
         for protocol in set(self._protocols.values()):
