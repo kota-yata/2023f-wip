@@ -1,9 +1,12 @@
 import asyncio
 import m_socket
+import websockets
 from aioquic.asyncio import serve, connect
 from aioquic.asyncio.protocol import QuicConnectionProtocol
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.events import StreamDataReceived
+
+WEBSOCKET_URI = "wss://ice-traversal-98d95d2795d5.herokuapp.com"
 
 class EchoQuicProtocol(QuicConnectionProtocol):
     def __init__(self, *args, **kwargs):
@@ -17,6 +20,9 @@ class EchoQuicProtocol(QuicConnectionProtocol):
                 self.close()
 
 async def run_quic_server(sock):
+    websocket = await websockets.connect(WEBSOCKET_URI)
+    await websocket.send("Hello")
+    await websocket.close()
     configuration = QuicConfiguration(is_client=False)
     configuration.load_verify_locations("../../certs/pycacert.pem")
     configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
