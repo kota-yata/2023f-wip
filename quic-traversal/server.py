@@ -16,11 +16,11 @@ class EchoQuicProtocol(QuicConnectionProtocol):
             if event.end_stream:
                 self.close()
 
-async def run_quic_server(sock, cid):
+async def run_quic_server(sock):
     configuration = QuicConfiguration(is_client=False)
     configuration.load_verify_locations("../../certs/pycacert.pem")
     configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
-    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="127.0.0.1", remote_port=12345)
+    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="106.72.33.225", remote_port=12345)
     await asyncio.Future()
 
 # async def run_quic_client(sock):
@@ -34,8 +34,8 @@ async def run_quic_server(sock, cid):
 #         print("Data Received:", received_data)
 
 async def main():
-    sock = await m_socket.create_socket("127.0.0.1", 12346)
-    server_task = asyncio.create_task(run_quic_server(sock, b"hoge"))
+    sock = await m_socket.create_socket("10.128.0.2", 12346)
+    server_task = asyncio.create_task(run_quic_server(sock))
     # client_task = asyncio.create_task(run_quic_client(sock))
     await asyncio.gather(server_task)
 
