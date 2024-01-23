@@ -108,6 +108,7 @@ class QuicServer(asyncio.DatagramProtocol):
             and len(data) >= SMALLEST_MAX_DATAGRAM_SIZE
             and header.packet_type == PACKET_TYPE_INITIAL
         ):
+            self._configuration.is_client = False
             # retry
             if self._retry is not None:
                 if not header.token:

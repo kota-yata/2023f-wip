@@ -16,29 +16,16 @@ class EchoQuicProtocol(QuicConnectionProtocol):
             if event.end_stream:
                 self.close()
 
-async def run_quic_server(sock):
+async def run_quic_server():
     configuration = QuicConfiguration(is_client=False)
     configuration.load_verify_locations("../../certs/pycacert.pem")
     configuration.load_cert_chain("../../certs/cert.pem", "../../certs/key.pem")
-    # 106.72.33.225
-    await serve(configuration=configuration, create_protocol=EchoQuicProtocol, sock=sock, connect=True, remote_host="106.72.33.225", remote_port=12345)
+    await serve("0.0.0.0", 12346, configuration=configuration, create_protocol=EchoQuicProtocol)
     await asyncio.Future()
 
-# async def run_quic_client(sock):
-#     print("Running client")
-#     configuration = QuicConfiguration(is_client=True)
-#     configuration.load_verify_locations("../../tests/pycacert.pem")
-#     async with connect("localhost", 12345, configuration=configuration, create_protocol=EchoQuicProtocol, local_port=12346, sock=sock) as protocol:
-#         stream_id = protocol._quic.get_next_available_stream_id()
-#         protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
-#         received_data = await protocol.received_data.get()
-#         print("Data Received:", received_data)
-
 async def main():
-    # 10.128.0.2
-    sock = await m_socket.create_socket("10.128.0.2", 12346)
-    server_task = asyncio.create_task(run_quic_server(sock))
-    # client_task = asyncio.create_task(run_quic_client(sock))
+    # sock = await m_socket.create_socket("localhost", 12346)
+    server_task = asyncio.create_task(run_quic_server())
     await asyncio.gather(server_task)
 
 if __name__ == "__main__":
