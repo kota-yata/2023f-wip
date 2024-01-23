@@ -19,5 +19,5 @@ git subtree push --prefix ice-traversal heroku main
 
 quic server for test
 ```
-git subtree push --prefix quic-traversal heroku-quic main
+git subtree push --prefix quic-traversal heroku-q main
 ```
