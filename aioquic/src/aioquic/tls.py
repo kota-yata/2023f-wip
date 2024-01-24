@@ -264,25 +264,25 @@ def verify_certificate(
     #         raise AlertBadCertificate(errmsg) from exc
 
     # load CAs
-    store = crypto.X509Store()
-    store.load_locations(certifi.where())
-    if cadata is not None:
-        for cert in load_pem_x509_certificates(cadata):
-            store.add_cert(crypto.X509.from_cryptography(cert))
+    # store = crypto.X509Store()
+    # store.load_locations(certifi.where())
+    # if cadata is not None:
+    #     for cert in load_pem_x509_certificates(cadata):
+    #         store.add_cert(crypto.X509.from_cryptography(cert))
 
-    if cafile is not None or capath is not None:
-        store.load_locations(cafile, capath)
+    # if cafile is not None or capath is not None:
+    #     store.load_locations(cafile, capath)
 
-    # verify certificate chain
-    store_ctx = crypto.X509StoreContext(
-        store,
-        crypto.X509.from_cryptography(certificate),
-        [crypto.X509.from_cryptography(cert) for cert in chain],
-    )
-    try:
-        store_ctx.verify_certificate()
-    except crypto.X509StoreContextError as exc:
-        raise AlertBadCertificate(exc.args[0])
+    # # verify certificate chain
+    # store_ctx = crypto.X509StoreContext(
+    #     store,
+    #     crypto.X509.from_cryptography(certificate),
+    #     [crypto.X509.from_cryptography(cert) for cert in chain],
+    # )
+    # try:
+    #     store_ctx.verify_certificate()
+    # except crypto.X509StoreContextError as exc:
+    #     raise AlertBadCertificate(exc.args[0])
 
 
 class CipherSuite(IntEnum):
@@ -1684,16 +1684,16 @@ class Context:
         # check signature
         self._check_certificate_verify_signature(verify)
 
-        # check certificate
-        if self._verify_mode != ssl.CERT_NONE:
-            verify_certificate(
-                cadata=self._cadata,
-                cafile=self._cafile,
-                capath=self._capath,
-                certificate=self._peer_certificate,
-                chain=self._peer_certificate_chain,
-                server_name=self._server_name,
-            )
+        # # check certificate
+        # if self._verify_mode != ssl.CERT_NONE:
+        #     verify_certificate(
+        #         cadata=self._cadata,
+        #         cafile=self._cafile,
+        #         capath=self._capath,
+        #         certificate=self._peer_certificate,
+        #         chain=self._peer_certificate_chain,
+        #         server_name=self._server_name,
+        #     )
 
         self.key_schedule.update_hash(input_buf.data)
         self._set_state(State.CLIENT_EXPECT_FINISHED)
