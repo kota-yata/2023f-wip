@@ -1,0 +1,121 @@
+@misc{rfc768,
+    series =    {Request for Comments},
+    number =    768,
+    howpublished =  {RFC 768},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC0768},
+    url =       {https://www.rfc-editor.org/info/rfc768},
+    author =    {},
+    title =     {{User Datagram Protocol}},
+    pagetotal = 3,
+    year =      1980,
+    month =     aug,
+    abstract =  {},
+}
+
+@misc{rfc9293,
+    series =    {Request for Comments},
+    number =    9293,
+    howpublished =  {RFC 9293},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9293},
+    url =       {https://www.rfc-editor.org/info/rfc9293},
+    author =    {Wesley Eddy},
+    title =     {{Transmission Control Protocol (TCP)}},
+    pagetotal = 98,
+    year =      2022,
+    month =     aug,
+    abstract =  {This document specifies the Transmission Control Protocol (TCP). TCP is an important transport-layer protocol in the Internet protocol stack, and it has continuously evolved over decades of use and growth of the Internet. Over this time, a number of changes have been made to TCP as it was specified in RFC 793, though these have only been documented in a piecemeal fashion. This document collects and brings those changes together with the protocol specification from RFC 793. This document obsoletes RFC 793, as well as RFCs 879, 2873, 6093, 6429, 6528, and 6691 that updated parts of RFC 793. It updates RFCs 1011 and 1122, and it should be considered as a replacement for the portions of those documents dealing with TCP requirements. It also updates RFC 5961 by adding a small clarification in reset handling while in the SYN-RECEIVED state. The TCP header control bits from RFC 793 have also been updated based on RFC 3168.},
+}
+
+@misc{rfc9114,
+    series =    {Request for Comments},
+    number =    9114,
+    howpublished =  {RFC 9114},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9114},
+    url =       {https://www.rfc-editor.org/info/rfc9114},
+    author =    {Mike Bishop},
+    title =     {{HTTP/3}},
+    pagetotal = 57,
+    year =      2022,
+    month =     jun,
+    abstract =  {The QUIC transport protocol has several features that are desirable in a transport for HTTP, such as stream multiplexing, per-stream flow control, and low-latency connection establishment. This document describes a mapping of HTTP semantics over QUIC. This document also identifies HTTP/2 features that are subsumed by QUIC and describes how HTTP/2 extensions can be ported to HTTP/3.},
+}
+
+@misc{quic_nat,
+  title={Using QUIC to traverse NATs},
+  url={https://www.ietf.org/archive/id/draft-seemann-quic-nat-traversal-01.html},
+  author={Marten Seemann},
+  year=2023,
+  month=october
+}
+
+@misc{p2p_quic,
+  title={P2P QUIC},
+  url={https://www.ietf.org/archive/id/draft-thatcher-p2p-quic-00.html},
+  author={Peter Thatcher},
+  year=2023,
+  month=july
+}
+
+@misc{rfc9000,
+    series =    {Request for Comments},
+    number =    9000,
+    howpublished =  {RFC 9000},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9000},
+    url =       {https://www.rfc-editor.org/info/rfc9000},
+    author =    {Jana Iyengar and Martin Thomson},
+    title =     {{QUIC: A UDP-Based Multiplexed and Secure Transport}},
+    pagetotal = 151,
+    year =      2021,
+    month =     may,
+    abstract =  {This document defines the core of the QUIC transport protocol. QUIC provides applications with flow-controlled streams for structured communication, low-latency connection establishment, and network path migration. QUIC includes security measures that ensure confidentiality, integrity, and availability in a range of deployment circumstances. Accompanying documents describe the integration of TLS for key negotiation, loss detection, and an exemplary congestion control algorithm.},
+}
+
+@misc{rfc8445,
+    series =    {Request for Comments},
+    number =    8445,
+    howpublished =  {RFC 8445},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC8445},
+    url =       {https://www.rfc-editor.org/info/rfc8445},
+    author =    {Ari Keränen and Christer Holmberg and Jonathan Rosenberg},
+    title =     {{Interactive Connectivity Establishment (ICE): A Protocol for Network Address Translator (NAT) Traversal}},
+    pagetotal = 100,
+    year =      2018,
+    month =     jul,
+    abstract =  {This document describes a protocol for Network Address Translator (NAT) traversal for UDP-based communication. This protocol is called Interactive Connectivity Establishment (ICE). ICE makes use of the Session Traversal Utilities for NAT (STUN) protocol and its extension, Traversal Using Relay NAT (TURN). This document obsoletes RFC 5245.},
+}
+
+@misc{rfc6544,
+    series =    {Request for Comments},
+    number =    6544,
+    howpublished =  {RFC 6544},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC6544},
+    url =       {https://www.rfc-editor.org/info/rfc6544},
+    author =    {Jonathan Rosenberg and Ari Keränen and Bruce Lowekamp and Adam Roach},
+    title =     {{TCP Candidates with Interactive Connectivity Establishment (ICE)}},
+    pagetotal = 29,
+    year =      2012,
+    month =     mar,
+    abstract =  {Interactive Connectivity Establishment (ICE) defines a mechanism for NAT traversal for multimedia communication protocols based on the offer/answer model of session negotiation. ICE works by providing a set of candidate transport addresses for each media stream, which are then validated with peer-to-peer connectivity checks based on Session Traversal Utilities for NAT (STUN). ICE provides a general framework for describing candidates but only defines UDP-based media streams. This specification extends ICE to TCP-based media, including the ability to offer a mix of TCP and UDP-based candidates for a single stream. {[}STANDARDS-TRACK{]}},
+}
+
+@misc{webrtc,
+  title={WebRTC: Real-Time Communication in Browsers},
+  howpublished={\url{https://www.w3.org/TR/webrtc/}}
+}
+
+@misc{aioice,
+  title={aiortc/aioice: asyncio-based Interactive Connectivity Establishment (RFC 5245)},
+  howpublished={\url{https://github.com/aiortc/aioice}}
+}
+
+@misc{aioquic,
+  title={aiortc/aioquic: QUIC and HTTP/3 implementation in Python},
+  howpublished={\url{https://github.com/aiortc/aioquic}}
+}
+

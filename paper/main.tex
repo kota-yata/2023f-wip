@@ -1,0 +1,34 @@
+\documentclass[dvipdfmx, autodetect-engine, a4j, twocolumn]{jsarticle}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\newcommand\figref[1]{図\ref{#1}}
+\newcommand\tabref[1]{表\ref{#1}}
+\newcommand\equref[1]{式\ref{#1}}
+
+\title{Using QUIC to Traverse NATsの実装}
+\author{Arch B1 kota \\ 親 cyan}
+\date{\empty}
+
+\begin{abstract}
+現在IETF quic WGにて議論されているドラフト Using QUIC to Traverse NATsにて提案されている，QUIC上でNAT越えを行いP2P通信を確立する2つの手法を実装し，QUICへの理解と実装力を深める．
+\end{abstract}
+
+\begin{document}
+\maketitle
+
+\input{sections/introduction.tex}
+\input{sections/related_works.tex}
+\input{sections/approach.tex}
+\input{sections/implementation.tex}
+\input{sections/experiment}
+\input{sections/plan.tex}
+
+% ref.bibに追記していってもいいが，mendeleyアカウントを持っているなら，overleafのupload bib from mendeleyの機能を使った方が効率的．
+\bibliographystyle{unsrt}
+\bibliography{ref}
+
+\end{document}
