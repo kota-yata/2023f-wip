@@ -36,7 +36,7 @@ async def run_quic_server(sock):
 
 async def main():
     # 10.128.0.2
-    sock = await m_socket.create_socket("35.224.102.252", 12346)
+    sock = await m_socket.create_socket("0.0.0.0", 12346)
     server_task = asyncio.create_task(run_quic_server(sock))
     # client_task = asyncio.create_task(run_quic_client(sock))
     await asyncio.gather(server_task)
