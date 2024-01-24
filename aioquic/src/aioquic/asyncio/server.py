@@ -224,7 +224,7 @@ async def serve(
     loop = asyncio.get_event_loop()
 
     configuration.server_name = remote_host
-    configuration.is_client = True
+    configuration.is_client = True if connect else False
 
     transport, protocol = await loop.create_datagram_endpoint(
         lambda: QuicServer(
