@@ -20,7 +20,7 @@ async def run_quic_server():
     configuration = QuicConfiguration(is_client=False)
     configuration.load_verify_locations("./certs/pycacert.pem")
     configuration.load_cert_chain("./certs/cert.pem", "./certs/key.pem")
-    await serve("0.0.0.0", int(os.environ.get("PORT", 8765)), configuration=configuration, create_protocol=EchoQuicProtocol)
+    await serve("0.0.0.0", int(os.environ.get("PORT", 5000)), configuration=configuration, create_protocol=EchoQuicProtocol)
     await asyncio.Future()
 
 async def main():
