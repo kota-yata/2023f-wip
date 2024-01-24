@@ -74,6 +74,7 @@ class QuicServer(asyncio.DatagramProtocol):
 
     def datagram_received(self, data: Union[bytes, Text], addr: NetworkAddress) -> None:
         print("datagram_received from: ", addr)
+        self._configuration.is_client = False
         data = cast(bytes, data)
         buf = Buffer(data=data)
 
