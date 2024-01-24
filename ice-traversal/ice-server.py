@@ -55,14 +55,6 @@ async def offer(options):
 
     await connection.connect()
 
-    # send data
-    data = b"hello"
-    component = 1
-    print("sending %s on component %d" % (repr(data), component))
-    await connection.sendto(data, component)
-    data, component = await connection.recvfrom()
-    print("received %s on component %d" % (repr(data), component))
-
     # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
     sock = connection.sock
     await run_quic_server(sock)

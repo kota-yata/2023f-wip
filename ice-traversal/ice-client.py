@@ -5,7 +5,7 @@ import asyncio
 import json
 import logging
 import os
-
+import time
 import aioice
 import websockets
 
@@ -24,11 +24,12 @@ async def run_quic_client(sock, remote_host, remote_port):
 
     async with connect(remote_host, remote_port, configuration=configuration, create_protocol=EchoClientProtocol, sock=sock) as protocol:
         stream_id = protocol._quic.get_next_available_stream_id()
-        protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=False)
+        protocol._quic.send_stream_data(stream_id, b"Hello!", end_stream=True)
         received_data = await protocol.received_data.get()
         print("Data Received:", received_data)
 
 async def answer(options):
+    print("now", time.time())
     connection = aioice.Connection(
         ice_controlling=False, components=options.components, stun_server=STUN_SERVER
     )
@@ -60,11 +61,6 @@ async def answer(options):
 
     await connection.connect()
     remote_addr = connection.established_remote_addr
-
-    # echo data back
-    data, component = await connection.recvfrom()
-    print("echoing %s on component %d" % (repr(data), component))
-    await connection.sendto(data, component)
 
     sock = connection.sock
     # sock = await m_socket.create_socket(local_addr[0], local_addr[1])
